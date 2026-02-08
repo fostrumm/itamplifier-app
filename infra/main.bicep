@@ -32,7 +32,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
     configuration: {
       ingress: {
         external: true
-        targetPort: 5000
+        targetPort: 80 // De placeholder image luistert op poort 80, wordt later bijgewerkt naar 5000
       }
       registries: [
         {
@@ -50,16 +50,6 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
             cpu: json('0.25')
             memory: '0.5Gi'
           }
-          probes: [
-            {
-              type: 'Liveness'
-              httpGet: {
-                path: '/health'
-                port: 5000
-              }
-              periodSeconds: 30
-            }
-          ]
         }
       ]
     }
