@@ -59,6 +59,10 @@ jobs:
 
       - name: Update Container App
         run: |
+          az containerapp ingress update \
+            --name itamplifier-app \
+            --resource-group rg01 \
+            --target-port 5000
           az containerapp update \
             --name itamplifier-app \
             --resource-group rg01 \
