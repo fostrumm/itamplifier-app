@@ -32,7 +32,7 @@ jobs:
       - name: Deploy Bicep
         uses: azure/arm-deploy@v1
         with:
-          resourceGroupName: rg01  # Hier hebben we de juiste naam ingevuld!
+          resourceGroupName: rg01
           template: ./infra/main.bicep
           parameters: acrName=itamplifierregistry
 
@@ -47,9 +47,15 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build and push image to ACR
+      - name: Log in to Azure Container Registry
+        run: az acr login --name itamplifierregistry
+
+      - name: Build and push image with Docker
         run: |
-          az acr build --registry itamplifierregistry --image itamplifier-app:${{ github.sha }} ./src
+          # Bouw de image lokaal op de GitHub runner
+          docker build -t itamplifierregistry.azurecr.io/itamplifier-app:${{ github.sha }} ./src
+          # Push de image naar de registry
+          docker push itamplifierregistry.azurecr.io/itamplifier-app:${{ github.sha }}
 
       - name: Update Container App
         run: |
