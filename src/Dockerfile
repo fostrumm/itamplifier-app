@@ -14,5 +14,5 @@ COPY . .
 # De poort openzetten voor Azure
 EXPOSE 5000
 
-# De app echt opstarten
-CMD ["python", "app.py"]
+# De app opstarten met gunicorn (productie-server)
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]

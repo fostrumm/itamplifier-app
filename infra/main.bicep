@@ -9,7 +9,7 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
     name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true 
+    adminUserEnabled: false
   }
 }
 
@@ -46,6 +46,20 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         {
           name: 'python-app'
           image: 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+          resources: {
+            cpu: json('0.25')
+            memory: '0.5Gi'
+          }
+          probes: [
+            {
+              type: 'Liveness'
+              httpGet: {
+                path: '/health'
+                port: 5000
+              }
+              periodSeconds: 30
+            }
+          ]
         }
       ]
     }
