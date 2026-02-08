@@ -1,0 +1,59 @@
+name: Deploy naar Azure Container Apps
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          pip install -r src/requirements.txt
+          pip install pytest
+      - name: Run tests
+        run: pytest tests/test_app.py
+
+  deploy-infra:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Deploy Bicep
+        uses: azure/arm-deploy@v1
+        with:
+          resourceGroupName: rg01  # Hier hebben we de juiste naam ingevuld!
+          template: ./infra/main.bicep
+          parameters: acrName=itamplifierregistry
+
+  build-and-deploy:
+    needs: deploy-infra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push image to ACR
+        run: |
+          az acr build --registry itamplifierregistry --image itamplifier-app:${{ github.sha }} ./src
+
+      - name: Update Container App
+        run: |
+          az containerapp update \
+            --name itamplifier-app \
+            --resource-group rg01 \
+            --image itamplifierregistry.azurecr.io/itamplifier-app:${{ github.sha }}
