@@ -17,6 +17,10 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
 resource environment 'Microsoft.App/managedEnvironments@2024-03-01' = {
   name: 'itamplifier-env'
   location: location
+  properties: {
+    // We laten dit leeg om de standaardinstellingen te gebruiken, 
+    // maar het blok moet er wel staan voor de validatie.
+  }
 }
 
 // 3. De Container App (de eigenlijke server)
