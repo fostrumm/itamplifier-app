@@ -34,12 +34,7 @@ resource containerApp 'Microsoft.App/containerApps@2024-03-01' = {
         external: true
         targetPort: 80 // De placeholder image luistert op poort 80, wordt later bijgewerkt naar 5000
       }
-      registries: [
-        {
-          server: acr.properties.loginServer
-          identity: 'system' // Vertel de app om zijn eigen paspoort te gebruiken voor de registry
-        }
-      ]
+      // Registries worden later via CI/CD geconfigureerd (na de role assignment)
     }
     template: {
       containers: [
