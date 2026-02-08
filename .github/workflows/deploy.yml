@@ -57,6 +57,14 @@ jobs:
           # Push de image naar de registry
           docker push itamplifierregistry.azurecr.io/itamplifier-app:${{ github.sha }}
 
+      - name: Configure ACR registry on Container App
+        run: |
+          az containerapp registry set \
+            --name itamplifier-app \
+            --resource-group rg01 \
+            --server itamplifierregistry.azurecr.io \
+            --identity system
+
       - name: Update Container App
         run: |
           az containerapp ingress update \
